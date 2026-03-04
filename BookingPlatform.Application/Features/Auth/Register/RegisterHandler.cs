@@ -1,4 +1,5 @@
-﻿using BookingPlatform.Application.Interfaces;
+﻿using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Interfaces;
 using BookingPlatform.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -18,25 +19,26 @@ public class RegisterHandler
                _users = users;
                _roles = roles;
     }
-    public async Task<RegisterResponse> Handle(RegisterCommand command, CancellationToken ct)
+    public async Task<Result<RegisterResponse>> Handle(RegisterCommand command, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(command.FirstName) ||
             string.IsNullOrWhiteSpace(command.LastName) ||
             string.IsNullOrWhiteSpace(command.Email) ||
             string.IsNullOrWhiteSpace(command.Password))
         {
-            throw new Exception("All fields are required.");
+            return Errors.FieldsRequired;
         }
         if (!IsValidEmail(command.Email))
         {
-            throw new Exception("Invalid email format.");
+            return Errors.EmailFormat;
         }
 
         if (!IsValidPassword(command.Password))
-            throw new Exception("Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.");
+            return Errors.InvalidCredentials;
+
         if (await _users.EmailExistsAsync(command.Email))
         {
-            throw new Exception("Email already exists");
+            return Errors.EmailAlreadyExists;
         }
         var user = new User
         {

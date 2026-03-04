@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BookingPlatform.Domain.Entities;
 using BookingPlatform.Application.Interfaces;
+using BookingPlatform.Application.Common;
 
 namespace BookingPlatform.Application.Features.Auth.Login;
 
@@ -18,13 +19,17 @@ public class LoginHandler
             _tokenService = tokenService;
         }
     
-        public async Task<LoginResponse> Handle(LoginCommand command, CancellationToken ct)
+        public async Task<Result<LoginResponse>> Handle(LoginCommand command, CancellationToken ct)
         {
             var user = await _users.GetByEmailAsync(command.Email, ct);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(command.Password, user.Password))
+            if (user == null )
             {
-                throw new Exception("Invalid email or password.");
+            return Errors.UserNotFound;
             }
+            if(!BCrypt.Net.BCrypt.Verify(command.Password, user.Password))
+        {
+            return Errors.InvalidCredentials;
+        }
             var token = _tokenService.GenerateToken(user);
             return new LoginResponse {
                 Token = token,
