@@ -4,6 +4,7 @@ using BookingPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookingPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304135749_UpdateSeededRoles")]
+    partial class UpdateSeededRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -276,25 +279,22 @@ namespace BookingPlatform.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2026, 3, 4, 14, 1, 51, 266, DateTimeKind.Utc).AddTicks(5160),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Default platform user",
-                            LastModifiedAt = new DateTime(2026, 3, 4, 14, 1, 51, 266, DateTimeKind.Utc).AddTicks(5289),
                             Name = "Guest"
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            CreatedAt = new DateTime(2026, 3, 4, 14, 1, 51, 266, DateTimeKind.Utc).AddTicks(5475),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Property owner",
-                            LastModifiedAt = new DateTime(2026, 3, 4, 14, 1, 51, 266, DateTimeKind.Utc).AddTicks(5475),
                             Name = "Owner"
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            CreatedAt = new DateTime(2026, 3, 4, 14, 1, 51, 266, DateTimeKind.Utc).AddTicks(5477),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Platform administrator",
-                            LastModifiedAt = new DateTime(2026, 3, 4, 14, 1, 51, 266, DateTimeKind.Utc).AddTicks(5477),
                             Name = "Admin"
                         });
                 });
