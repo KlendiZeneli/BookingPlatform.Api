@@ -1,4 +1,4 @@
-﻿using BookingPlatform.Application.Interfaces;
+﻿using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;

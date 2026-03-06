@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using BookingPlatform.Application.Interfaces;
+using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 

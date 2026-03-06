@@ -6,17 +6,27 @@ namespace BookingPlatform.Application.Common;
 
 public static class Errors
 {
-    public static Error UserNotFound { get; } = new("UserNotFound", ErrorType.NotFound, "User does not exist.");
-    public static Error InvalidCredentials { get; } = new("InvalidCredentials", ErrorType.Unauthorized, "Username or password is incorrect.");
-    public static Error TokenGenerationFailed { get; } = new("TokenGenerationFailed", ErrorType.ServerError, "Failed to generate JWT token.");
+    public static Error UserNotFound { get; } =
+        new("UserNotFound", ErrorType.NotFound, "User does not exist.", 404);
 
-    public static Error EmailAlreadyExists { get; } = new("EmailAlreadyExists",ErrorType.AlreadyExists, "An account with this email already exists.");
+    public static Error InvalidCredentials { get; } =
+        new("InvalidCredentials", ErrorType.Unauthorized, "Username or password is incorrect.", 401);
 
-    public static Error FieldsRequired { get; } = new("FieldsRequired", ErrorType.EmailFormat, "All fields are required.");
+    public static Error TokenGenerationFailed { get; } =
+        new("TokenGenerationFailed", ErrorType.ServerError, "Failed to generate JWT token.", 500);
 
-    public static Error EmailFormat { get; } = new("EmailFormat", ErrorType.EmailFormat, "The email address format is invalid.");
+    public static Error EmailAlreadyExists { get; } =
+        new("EmailAlreadyExists", ErrorType.AlreadyExists, "An account with this email already exists.", 409);
 
-    public static Error PasswordFormat { get; } = new("PasswordFormat", ErrorType.EmailFormat, "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.");
+    public static Error FieldsRequired { get; } =
+        new("FieldsRequired", ErrorType.Validation, "All fields are required.", 400);
 
-    public static Error Unknown { get; } = new("Unknown", ErrorType.ServerError, "An unexpected error occurred.");
+    public static Error EmailFormat { get; } =
+        new("EmailFormat", ErrorType.Validation, "The email address format is invalid.", 400);
+
+    public static Error PasswordFormat { get; } =
+        new("PasswordFormat", ErrorType.Validation, "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.", 400);
+
+    public static Error Unknown { get; } =
+        new("Unknown", ErrorType.ServerError, "An unexpected error occurred.", 500);
 }

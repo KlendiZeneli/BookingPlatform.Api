@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BookingPlatform.Application.Common;
 
@@ -30,6 +29,5 @@ public record Result<T> : Result
     private Result(Error error) : base(false, error) { }
 
     public static implicit operator Result<T>(T value) => new(value);
-
     public static implicit operator Result<T>(Error error) => new(error);
 }

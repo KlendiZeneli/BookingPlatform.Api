@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BookingPlatform.Application.Interfaces;
+namespace BookingPlatform.Application.Common.Interfaces;
 
 public interface ICurrentUserService
 {

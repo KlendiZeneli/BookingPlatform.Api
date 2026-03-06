@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using BookingPlatform.Application.Interfaces;
+using BookingPlatform.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 
 namespace BookingPlatform.Infrastructure.Services;

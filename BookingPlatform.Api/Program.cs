@@ -1,18 +1,23 @@
-using BookingPlatform.Application.Interfaces;
-using BookingPlatform.Domain.Entities;
+using Application.Behaviors;
+using BookingPlatform.Api.Middleware;
+using BookingPlatform.API.Endpoints.Auth;
+using BookingPlatform.Application.Common.Interfaces;
+using BookingPlatform.Application.Features;
+using BookingPlatform.Application.Features.Auth.Login;
+using BookingPlatform.Application.Features.Auth.Register;
 using BookingPlatform.Infrastructure.Persistence;
 using BookingPlatform.Infrastructure.Persistence.Repositories;
-using DotNetEnv;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.OpenApi;
-using BookingPlatform.API.Endpoints.Auth;
-using BookingPlatform.Application.Features.Auth.Register;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using BookingPlatform.Application.Features.Auth.Login;
 using BookingPlatform.Infrastructure.Services;
+using DotNetEnv;
+using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using System.Reflection.Metadata;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +35,17 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 });
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<HandlerMarker>());
+builder.Services.AddValidatorsFromAssemblyContaining<HandlerMarker>();
+
+ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
+ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
+
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddHttpContextAccessor();
@@ -68,6 +84,7 @@ builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
+app.UseGlobalExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();

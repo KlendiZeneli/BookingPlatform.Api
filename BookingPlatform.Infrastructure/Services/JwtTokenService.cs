@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using BookingPlatform.Application.Interfaces;
+using BookingPlatform.Application.Common.Interfaces;
 
 namespace BookingPlatform.Infrastructure.Services;
 

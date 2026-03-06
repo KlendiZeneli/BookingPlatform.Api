@@ -1,5 +1,6 @@
 ﻿using BookingPlatform.Application.Common;
 using BookingPlatform.Application.Features.Auth.Register;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -12,23 +13,13 @@ public static class RegisterEndpoint
     public static void MapRegisterEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/auth/register",
-            async (RegisterCommand command, RegisterHandler handler, CancellationToken ct) =>
+            async (RegisterCommand command, IMediator mediator, CancellationToken ct) =>
             {
-                var result = await handler.Handle(command, ct);
+                var result = await mediator.Send(command, ct);
 
-                if (!result.IsSuccess)
-                {
-                    // map error type to proper HTTP result
-                    return result.Error.Type switch
-                    {
-                        ErrorType.NotFound => Results.NotFound(result.Error.Description),
-                        ErrorType.Unauthorized => Results.Unauthorized(),
-                        ErrorType.Validation => Results.BadRequest(result.Error.Description),
-                        _ => Results.BadRequest(result.Error.Description)
-                    };
-                }
-
-                return Results.Ok(result);
+                return result.IsSuccess
+                   ? Results.Ok(result.Value)
+                   : Results.Json(result.Error.Description, statusCode: result.Error.Code);
             });
     }
 }

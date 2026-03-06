@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System.Threading;
+using MediatR;
 
 namespace BookingPlatform.API.Endpoints.Auth;
 
@@ -13,22 +14,15 @@ public static class LoginEndpoint
     public static void MapLoginEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/auth/login",
-            async (LoginCommand command, LoginHandler handler, CancellationToken ct) =>
+            async (LoginCommand command, IMediator mediator, CancellationToken ct) =>
             {
-                var result = await handler.Handle(command, ct);
 
-                if (!result.IsSuccess)
-                {
-                    // map error type to proper HTTP result
-                    return result.Error.Type switch
-                    {
-                        ErrorType.NotFound => Results.NotFound(result.Error.Description),
-                        ErrorType.Unauthorized => Results.Unauthorized(),
-                        ErrorType.Validation => Results.BadRequest(result.Error.Description),
-                        _ => Results.BadRequest(result.Error.Description)
-                    };
-                }
-                return Results.Ok(result.Value);
+                var result = await mediator.Send(command, ct);
+
+
+                return result.IsSuccess
+                   ? Results.Ok(result.Value)
+                   : Results.Json(result.Error.Description, statusCode: result.Error.Code);
             });
-    }
+    }   
 }

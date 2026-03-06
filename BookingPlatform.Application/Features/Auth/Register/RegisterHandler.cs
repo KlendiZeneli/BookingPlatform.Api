@@ -1,6 +1,7 @@
 ﻿using BookingPlatform.Application.Common;
-using BookingPlatform.Application.Interfaces;
+using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Net.Mail;
@@ -9,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace BookingPlatform.Application.Features.Auth.Register;
 
-public class RegisterHandler
+public class RegisterHandler : IRequestHandler<RegisterCommand, Result<RegisterResponse>>
 {
     private readonly IUserRepository _users;
     private readonly IRoleRepository _roles;
@@ -21,25 +22,9 @@ public class RegisterHandler
     }
     public async Task<Result<RegisterResponse>> Handle(RegisterCommand command, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(command.FirstName) ||
-            string.IsNullOrWhiteSpace(command.LastName) ||
-            string.IsNullOrWhiteSpace(command.Email) ||
-            string.IsNullOrWhiteSpace(command.Password))
-        {
-            return Errors.FieldsRequired;
-        }
-        if (!IsValidEmail(command.Email))
-        {
-            return Errors.EmailFormat;
-        }
-
-        if (!IsValidPassword(command.Password))
-            return Errors.InvalidCredentials;
 
         if (await _users.EmailExistsAsync(command.Email))
-        {
             return Errors.EmailAlreadyExists;
-        }
         var user = new User
         {
             Id = Guid.NewGuid(),
@@ -65,41 +50,5 @@ public class RegisterHandler
         await _users.AddAsync(user, ct);
         await _users.SaveChangesAsync(ct);
         return new RegisterResponse(user.Id);
-    }
-
-    private bool IsValidEmail(string email)
-    {
-        try
-        {
-            var addr = new MailAddress(email);
-            return addr.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    private bool IsValidPassword(string password)
-    {
-        if (string.IsNullOrWhiteSpace(password))
-            return false;
-
-        if (password.Length < 8)
-            return false;
-
-        if (!Regex.IsMatch(password, "[A-Z]"))
-            return false;
-
-        if (!Regex.IsMatch(password, "[a-z]"))
-            return false;
-
-        if (!Regex.IsMatch(password, "[0-9]"))
-            return false;
-
-        if (!Regex.IsMatch(password, "[^a-zA-Z0-9]"))
-            return false;
-
-        return true;
     }
 }

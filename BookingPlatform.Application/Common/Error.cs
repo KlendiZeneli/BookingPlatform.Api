@@ -4,4 +4,18 @@ using System.Text;
 
 namespace BookingPlatform.Application.Common;
 
-public record Error(string Id, ErrorType Type, string Description);
+public class Error
+{
+    public string Id { get; }
+    public ErrorType Type { get; }
+    public string Description { get; }
+    public int Code { get; }
+
+    public Error(string id, ErrorType type, string description, int code)
+    {
+        Id = id;
+        Type = type;
+        Description = description;
+        Code = code;
+    }
+}
