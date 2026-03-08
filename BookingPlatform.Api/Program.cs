@@ -1,5 +1,6 @@
 using Application.Behaviors;
 using BookingPlatform.Api.Endpoints.Properties;
+using BookingPlatform.Api.Endpoints.Reviews;
 using BookingPlatform.Api.Middleware;
 using BookingPlatform.API.Endpoints.Auth;
 using BookingPlatform.API.Endpoints.OwnerProfiles;
@@ -40,6 +41,17 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200") // frontend URL
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<HandlerMarker>());
 builder.Services.AddValidatorsFromAssemblyContaining<HandlerMarker>();
 
@@ -63,6 +75,8 @@ builder.Services.AddScoped<IOwnerProfileRepository, OwnerProfileRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<RegisterHandler>();
 builder.Services.AddScoped<LoginHandler>();
+builder.Services.AddScoped<IReviewRepository, BookingPlatform.Infrastructure.Persistence.Repositories.ReviewRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingPlatform.Infrastructure.Persistence.Repositories.BookingRepository>();
 
 var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT"));
 
@@ -102,6 +116,7 @@ builder.Services.AddAuthorization(options =>
 
 
 var app = builder.Build();
+app.UseCors("AllowFrontend");
 app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
@@ -125,6 +140,7 @@ app.MapVerifyOwnerProfileEndpoint();
 app.MapCreateOwnerProfileEndpoint();
 app.MapCreatePropertyEndpoint();
 app.MapMakeBookingEndpoint();
+app.MapMakeReviewEndpoint();
 
 app.Run();
 

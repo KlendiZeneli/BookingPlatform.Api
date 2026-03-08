@@ -27,6 +27,12 @@ public static class Errors
     public static Error NotAuthenticated { get; } =
         new("NotAuthenticated", ErrorType.Unauthorized, "User is not authenticated.", 401);
 
+    public static Error AlreadyReviewed { get; } =
+        new("AlreadyReviewed", ErrorType.AlreadyExists, "A review for this booking by this guest already exists.", 409);
+
+    public static Error BookingNotFound { get; } =
+        new("BookingNotFound", ErrorType.NotFound, "Booking does not exist.", 404);
+
     public static Error TooManyGuests { get; } =
         new("TooManyGuests", ErrorType.Validation, "The number of guests is higher than allowed.",400);
 
