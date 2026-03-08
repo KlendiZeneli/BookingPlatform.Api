@@ -34,7 +34,8 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, Result<RegisterR
             Password = BCrypt.Net.BCrypt.HashPassword(command.Password),
             CreatedAt = DateTime.UtcNow,
             LastModifiedAt = DateTime.UtcNow,
-            IsActive = true
+            IsActive = true,
+            UserRoles = new List<UserRole>()
         };
 
         var guestRole = await _roles.GetByNameAsync("Guest", ct);

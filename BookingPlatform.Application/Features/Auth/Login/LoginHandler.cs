@@ -25,6 +25,16 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
         if (user == null)
             return Errors.UserNotFound;
 
+        Console.WriteLine($"User: {user?.Email} ({user?.Id})");
+
+        if (user != null)
+        {
+            foreach (var ur in user.UserRoles)
+            {
+                Console.WriteLine($"Role: {ur.Role.Name}");
+            }
+        }
+
         if (!BCrypt.Net.BCrypt.Verify(command.Password, user.Password))
             return Errors.InvalidCredentials;
 

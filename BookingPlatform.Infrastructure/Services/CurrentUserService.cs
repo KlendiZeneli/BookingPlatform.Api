@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 using BookingPlatform.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -19,7 +20,7 @@ public class CurrentUserService : ICurrentUserService
     {
         get
         {
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("id");
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
             {
                 return userId;
@@ -28,12 +29,12 @@ public class CurrentUserService : ICurrentUserService
         }
     }
 
-    public string? Email => _httpContextAccessor.HttpContext?.User?.FindFirst("email")?.Value;
+    public string? Email => _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value;
     public IEnumerable<string> Roles
     {
         get
         {
-            var roleClaims = _httpContextAccessor.HttpContext?.User?.FindAll("role");
+            var roleClaims = _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role);
             if (roleClaims != null)
             {
                 foreach (var claim in roleClaims)

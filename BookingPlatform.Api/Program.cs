@@ -1,12 +1,16 @@
 using Application.Behaviors;
+using BookingPlatform.Api.Endpoints.Properties;
 using BookingPlatform.Api.Middleware;
 using BookingPlatform.API.Endpoints.Auth;
+using BookingPlatform.API.Endpoints.OwnerProfiles;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Application.Features;
 using BookingPlatform.Application.Features.Auth.Login;
 using BookingPlatform.Application.Features.Auth.Register;
+using BookingPlatform.Api.Endpoints.Bookings;
 using BookingPlatform.Infrastructure.Persistence;
 using BookingPlatform.Infrastructure.Persistence.Repositories;
+using BookingPlatform.Infrastructure.Repositories;
 using BookingPlatform.Infrastructure.Services;
 using DotNetEnv;
 using FluentValidation;
@@ -50,13 +54,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IOwnerProfileRepository, OwnerProfileRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<RegisterHandler>();
 builder.Services.AddScoped<LoginHandler>();
 
-var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
+var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT"));
 
 builder.Services
     .AddAuthentication(options =>
@@ -80,12 +88,23 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy =>
+        policy.RequireRole("Admin"));
+
+    options.AddPolicy("Guest", policy =>
+        policy.RequireRole("Guest"));
+
+    options.AddPolicy("Owner", policy =>
+        policy.RequireRole("Owner"));
+});
 
 
 var app = builder.Build();
 app.UseGlobalExceptionHandler();
 
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -96,12 +115,16 @@ if (app.Environment.IsDevelopment())
 }
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseHttpsRedirection();
 
-app.MapGet("/", () => "Hello World!");
+
+//app.MapGet("/", () => "Hello World!");
 
 app.MapRegisterEndpoint();
 app.MapLoginEndpoint();
+app.MapVerifyOwnerProfileEndpoint();
+app.MapCreateOwnerProfileEndpoint();
+app.MapCreatePropertyEndpoint();
+app.MapMakeBookingEndpoint();
 
 app.Run();
 

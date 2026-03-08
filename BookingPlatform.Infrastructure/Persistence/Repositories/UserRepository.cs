@@ -21,9 +21,17 @@ public class UserRepository : IUserRepository
         return _context.Users.AnyAsync(u => u.Email == email);
     }
 
+    public Task<User?> GetByUserIdAsync(Guid userId, CancellationToken ct)
+    {
+        return _context.Users.FirstOrDefaultAsync(x => x.Id == userId, ct);
+    }
+
     public Task<User?> GetByEmailAsync(string email,CancellationToken ct)
     {
-        return _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return _context.Users
+         .Include(u => u.UserRoles)        
+             .ThenInclude(ur => ur.Role) 
+         .FirstOrDefaultAsync(u => u.Email == email, ct);
     }
     public async Task AddAsync(User user, CancellationToken ct)
     {

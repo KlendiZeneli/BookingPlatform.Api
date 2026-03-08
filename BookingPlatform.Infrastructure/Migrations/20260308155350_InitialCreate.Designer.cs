@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookingPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260214133622_InitialCreate")]
+    [Migration("20260308155350_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -58,6 +58,94 @@ namespace BookingPlatform.Infrastructure.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("BookingPlatform.Domain.Entities.Amenity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Amenities");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000003"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000004"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000005"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000006"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 5
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000007"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 6
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000008"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 7
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000009"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 8
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-00000000000a"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 9
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-00000000000b"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 0, DateTimeKind.Utc),
+                            Name = 10
+                        });
+                });
+
             modelBuilder.Entity("BookingPlatform.Domain.Entities.Booking", b =>
                 {
                     b.Property<Guid>("Id")
@@ -65,6 +153,7 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("AmenitiesUpCharge")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("BookingStatus")
@@ -75,6 +164,7 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("CleaningFee")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("CompletedOnUtc")
@@ -102,6 +192,7 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("PriceForPeriod")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("PropertyId")
@@ -114,6 +205,7 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid?>("UserId")
@@ -152,9 +244,14 @@ namespace BookingPlatform.Infrastructure.Migrations
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("VerificationStatus")
-                        .IsRequired()
+                    b.Property<string>("VerificationNotes")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VerificationStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("UserId");
 
@@ -169,6 +266,18 @@ namespace BookingPlatform.Infrastructure.Migrations
 
                     b.Property<Guid>("AddressId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("AverageRating")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Bathrooms")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Bedrooms")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Beds")
+                        .HasColumnType("int");
 
                     b.Property<TimeOnly>("CheckInTime")
                         .HasColumnType("time");
@@ -186,9 +295,6 @@ namespace BookingPlatform.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("LastBookedOnUtc")
                         .HasColumnType("datetime2");
 
@@ -202,20 +308,69 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("OwnerId")
+                    b.Property<Guid>("OwnerProfileId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("PropertyType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("PricePerNight")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PropertyType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReviewCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("OwnerProfileId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Properties");
+                });
+
+            modelBuilder.Entity("BookingPlatform.Domain.Entities.PropertyAmenity", b =>
+                {
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AmenityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PropertyId", "AmenityId");
+
+                    b.HasIndex("AmenityId");
+
+                    b.ToTable("PropertyAmenities");
+                });
+
+            modelBuilder.Entity("BookingPlatform.Domain.Entities.PropertyImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId");
+
+                    b.ToTable("PropertyImage");
                 });
 
             modelBuilder.Entity("BookingPlatform.Domain.Entities.Review", b =>
@@ -239,6 +394,9 @@ namespace BookingPlatform.Infrastructure.Migrations
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
@@ -248,6 +406,8 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("GuestId");
+
+                    b.HasIndex("PropertyId");
 
                     b.ToTable("Reviews");
                 });
@@ -274,6 +434,32 @@ namespace BookingPlatform.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 63, DateTimeKind.Utc).AddTicks(5115),
+                            Description = "Default platform user",
+                            LastModifiedAt = new DateTime(2026, 3, 6, 20, 11, 30, 63, DateTimeKind.Utc).AddTicks(5243),
+                            Name = "Guest"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 63, DateTimeKind.Utc).AddTicks(5481),
+                            Description = "Property owner",
+                            LastModifiedAt = new DateTime(2026, 3, 6, 20, 11, 30, 63, DateTimeKind.Utc).AddTicks(5482),
+                            Name = "Owner"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            CreatedAt = new DateTime(2026, 3, 6, 20, 11, 30, 63, DateTimeKind.Utc).AddTicks(5483),
+                            Description = "Platform administrator",
+                            LastModifiedAt = new DateTime(2026, 3, 6, 20, 11, 30, 63, DateTimeKind.Utc).AddTicks(5483),
+                            Name = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("BookingPlatform.Domain.Entities.User", b =>
@@ -381,15 +567,49 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BookingPlatform.Domain.Entities.User", "Owner")
-                        .WithMany("OwnedProperties")
-                        .HasForeignKey("OwnerId")
+                    b.HasOne("BookingPlatform.Domain.Entities.OwnerProfile", "OwnerProfile")
+                        .WithMany()
+                        .HasForeignKey("OwnerProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BookingPlatform.Domain.Entities.User", null)
+                        .WithMany("OwnedProperties")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Address");
 
-                    b.Navigation("Owner");
+                    b.Navigation("OwnerProfile");
+                });
+
+            modelBuilder.Entity("BookingPlatform.Domain.Entities.PropertyAmenity", b =>
+                {
+                    b.HasOne("BookingPlatform.Domain.Entities.Amenity", "Amenity")
+                        .WithMany("PropertyAmenities")
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookingPlatform.Domain.Entities.Property", "Property")
+                        .WithMany("PropertyAmenities")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Amenity");
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("BookingPlatform.Domain.Entities.PropertyImage", b =>
+                {
+                    b.HasOne("BookingPlatform.Domain.Entities.Property", "Property")
+                        .WithMany("Images")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
                 });
 
             modelBuilder.Entity("BookingPlatform.Domain.Entities.Review", b =>
@@ -406,9 +626,17 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("BookingPlatform.Domain.Entities.Property", "Property")
+                        .WithMany("Reviews")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Booking");
 
                     b.Navigation("Guest");
+
+                    b.Navigation("Property");
                 });
 
             modelBuilder.Entity("BookingPlatform.Domain.Entities.UserRole", b =>
@@ -435,6 +663,11 @@ namespace BookingPlatform.Infrastructure.Migrations
                     b.Navigation("Properties");
                 });
 
+            modelBuilder.Entity("BookingPlatform.Domain.Entities.Amenity", b =>
+                {
+                    b.Navigation("PropertyAmenities");
+                });
+
             modelBuilder.Entity("BookingPlatform.Domain.Entities.Booking", b =>
                 {
                     b.Navigation("Review");
@@ -443,6 +676,12 @@ namespace BookingPlatform.Infrastructure.Migrations
             modelBuilder.Entity("BookingPlatform.Domain.Entities.Property", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("Images");
+
+                    b.Navigation("PropertyAmenities");
+
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("BookingPlatform.Domain.Entities.Role", b =>
