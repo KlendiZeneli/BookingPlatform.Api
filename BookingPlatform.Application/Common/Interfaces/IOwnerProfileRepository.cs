@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 
 namespace BookingPlatform.Application.Common.Interfaces;
 
-public interface IOwnerProfileRepository
+public interface IOwnerProfileRepository : ICrudRepository<OwnerProfile>
 {
     Task<OwnerProfile?> GetByUserIdAsync(Guid userId, CancellationToken ct);
-    Task AddAsync(OwnerProfile profile, CancellationToken ct);
-    Task SaveChangesAsync(CancellationToken ct);
 }

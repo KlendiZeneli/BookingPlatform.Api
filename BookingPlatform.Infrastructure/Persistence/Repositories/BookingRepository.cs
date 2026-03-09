@@ -22,6 +22,23 @@ public class BookingRepository : IBookingRepository
         return _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, ct);
     }
 
+    public Task<IEnumerable<Booking>> GetAllAsync(CancellationToken ct)
+    {
+        return _context.Bookings.ToListAsync(ct).ContinueWith(t => (IEnumerable<Booking>)t.Result, ct);
+    }
+
+    public Task UpdateAsync(Booking entity, CancellationToken ct)
+    {
+        _context.Bookings.Update(entity);
+        return Task.CompletedTask;
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken ct)
+    {
+        var b = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (b != null) _context.Bookings.Remove(b);
+    }
+
     public async Task AddAsync(Booking booking, CancellationToken ct)
     {
         await _context.Bookings.AddAsync(booking, ct);

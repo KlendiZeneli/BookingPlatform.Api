@@ -120,6 +120,13 @@ public class AppDbContext : DbContext
             b.Property(x => x.TotalPrice).HasPrecision(18, 2);
         });
 
+        // Persist BookingStatus as string to remain compatible with existing database values
+        builder.Entity<Booking>()
+            .Property(b => b.BookingStatus)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired();
+
         // Ensure price precision for properties to avoid silent truncation
         builder.Entity<Property>(p =>
         {

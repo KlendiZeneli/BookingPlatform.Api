@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace BookingPlatform.Application.Common.Interfaces;
 
-public interface IReviewRepository
+public interface IReviewRepository : ICrudRepository<Review>
 {
     Task<Review?> GetByBookingAndGuestAsync(Guid bookingId, Guid guestId, CancellationToken ct);
-    Task AddAsync(Review review, CancellationToken ct);
-    Task SaveChangesAsync(CancellationToken ct);
+    Task<IEnumerable<Review>> GetByPropertyIdAsync(Guid propertyId, CancellationToken ct);
 }

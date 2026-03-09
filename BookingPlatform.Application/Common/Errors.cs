@@ -27,6 +27,9 @@ public static class Errors
     public static Error NotAuthenticated { get; } =
         new("NotAuthenticated", ErrorType.Unauthorized, "User is not authenticated.", 401);
 
+    public static Error NotAuthorized { get; } =
+        new("NotAuthorized", ErrorType.Unauthorized, "User is not authorized to perform this action.", 403);
+
     public static Error AlreadyReviewed { get; } =
         new("AlreadyReviewed", ErrorType.AlreadyExists, "A review for this booking by this guest already exists.", 409);
 
@@ -35,6 +38,9 @@ public static class Errors
 
     public static Error TooManyGuests { get; } =
         new("TooManyGuests", ErrorType.Validation, "The number of guests is higher than allowed.",400);
+
+    public static Error ReviewNotAllowed { get; } =
+        new("ReviewNotAllowed", ErrorType.Validation, "Reviews can only be made for confirmed bookings.", 400);
 
     public static Error InvalidCredentials { get; } =
         new("InvalidCredentials", ErrorType.Unauthorized, "Username or password is incorrect.", 401);

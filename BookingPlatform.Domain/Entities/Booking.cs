@@ -19,7 +19,7 @@ public class Booking : BaseEntity
     public decimal PriceForPeriod { get; set; }
     public decimal TotalPrice { get; set; }
 
-    public string BookingStatus { get; set; } = default!;
+    public BookingPlatform.Domain.Enums.BookingStatus BookingStatus { get; set; } = BookingPlatform.Domain.Enums.BookingStatus.Created;
 
     public DateTime? CreatedOnUtc { get; set; }
     public DateTime? ConfirmedOnUtc { get; set; }

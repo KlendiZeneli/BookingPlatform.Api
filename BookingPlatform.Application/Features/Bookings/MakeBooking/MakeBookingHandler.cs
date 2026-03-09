@@ -33,7 +33,7 @@ public class MakeBookingHandler : IRequestHandler<MakeBookingCommand, Result<Mak
         if (request.GuestCount > property.MaxGuests) return Errors.TooManyGuests;
 
         // check overlapping bookings: any booking where (start < existing.EndDate) && (end > existing.StartDate)
-        var overlap = property.Bookings.Any(b => b.BookingStatus != "Cancelled" && start < b.EndDate.Date && end > b.StartDate.Date);
+        var overlap = property.Bookings.Any(b => b.BookingStatus != BookingPlatform.Domain.Enums.BookingStatus.Cancelled && start < b.EndDate.Date && end > b.StartDate.Date);
         if (overlap) return Errors.BookingConflict;
 
         var nights = (end - start).Days;
@@ -56,7 +56,7 @@ public class MakeBookingHandler : IRequestHandler<MakeBookingCommand, Result<Mak
             AmenitiesUpCharge = 0m,
             PriceForPeriod = priceForPeriod,
             TotalPrice = priceForPeriod,
-            BookingStatus = "Created",  
+            BookingStatus = BookingPlatform.Domain.Enums.BookingStatus.Created,
             CreatedOnUtc = DateTime.UtcNow
         };
 

@@ -34,6 +34,7 @@ public class MakeReviewHandler : IRequestHandler<MakeReviewCommand, Result<MakeR
         var booking = await _bookings.GetByIdAsync(request.BookingId, ct);
         if (booking == null) return Errors.BookingNotFound;
         if (booking.GuestId != userId.Value) return Errors.NotAuthenticated;
+        if (booking.BookingStatus != BookingPlatform.Domain.Enums.BookingStatus.Confirmed) return Errors.ReviewNotAllowed;
 
         var review = new Review
         {

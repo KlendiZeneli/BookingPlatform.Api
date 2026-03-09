@@ -5,10 +5,8 @@ using System.Text;
 
 namespace BookingPlatform.Application.Common.Interfaces;
 
-public interface IPropertyRepository
+public interface IPropertyRepository : ICrudRepository<Property>
 {
     Task<Property?> GetByIdAsync(Guid propertyId, CancellationToken ct);
     Task AddBooking(Booking booking);
-    Task AddAsync(Property property, CancellationToken ct);
-    Task SaveChangesAsync(CancellationToken ct);
 }

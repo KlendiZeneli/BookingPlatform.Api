@@ -77,6 +77,7 @@ builder.Services.AddScoped<RegisterHandler>();
 builder.Services.AddScoped<LoginHandler>();
 builder.Services.AddScoped<IReviewRepository, BookingPlatform.Infrastructure.Persistence.Repositories.ReviewRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingPlatform.Infrastructure.Persistence.Repositories.BookingRepository>();
+builder.Services.AddScoped<BookingPlatform.Application.Common.Interfaces.IEmailService, BookingPlatform.Infrastructure.Services.EmailService>();
 
 var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT"));
 
@@ -141,6 +142,11 @@ app.MapCreateOwnerProfileEndpoint();
 app.MapCreatePropertyEndpoint();
 app.MapMakeBookingEndpoint();
 app.MapMakeReviewEndpoint();
+app.MapVerifyBookingEndpoint();
+app.MapGetPropertyEndpoint();
+app.MapDeletePropertyEndpoint();
+app.MapCancelBookingEndpoint();
+app.MapGetPropertyReviewsEndpoint();
 
 app.Run();
 
