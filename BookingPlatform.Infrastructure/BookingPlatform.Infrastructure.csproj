@@ -17,11 +17,20 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="SendGrid" Version="9.29.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BookingPlatform.Application\BookingPlatform.Application.csproj" />
     <ProjectReference Include="..\BookingPlatform.Domain\BookingPlatform.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Email\Templates\" />
+    <!-- Ensure email templates are copied to output so runtime can load them -->
+    <Content Include="Email\Templates\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

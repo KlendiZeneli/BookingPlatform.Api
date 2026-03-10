@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using BookingPlatform.Application.Common.Validators;
 
 namespace BookingPlatform.Application.Features.Auth.Register;
 
@@ -18,11 +19,6 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .EmailAddress().WithMessage("Email format is invalid");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required")
-            .MinimumLength(8).WithMessage("Password must be at least 8 characters")
-            .Matches("[A-Z]").WithMessage("Password must contain an uppercase letter")
-            .Matches("[a-z]").WithMessage("Password must contain a lowercase letter")
-            .Matches("[0-9]").WithMessage("Password must contain a number")
-            .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain a special character");
+            .MustBeValidPassword();
     }
 }

@@ -19,5 +19,9 @@ public class User : BaseEntity
 
     public ICollection<Property> OwnedProperties { get; set; } = new List<Property>();
     public ICollection<Booking> GuestBookings { get; set; } = new List<Booking>();
+    
+    // password reset fields
+    public string? PasswordResetToken { get; set; }
+    public DateTime? PasswordResetExpires { get; set; }
 }
 

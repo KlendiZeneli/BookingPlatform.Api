@@ -1,13 +1,14 @@
-﻿using MediatR;
-using System.Security.Claims;
-using BookingPlatform.Api.Contracts.Properties;
+﻿using BookingPlatform.Api.Contracts.Properties;
 using BookingPlatform.Application.Features.Properties.CreateProperty;
+using BookingPlatform.Application.Features.Properties.GetProperty;
+using MediatR;
+using System.Security.Claims;
 
 namespace BookingPlatform.Api.Endpoints.Properties;
 
-public static class CreatePropertyEndpoint
+public class CreatePropertyEndpoint : IEndpoint
 {
-    public static void MapCreatePropertyEndpoint(this IEndpointRouteBuilder app)
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/properties", async (
             CreatePropertyRequest request,
@@ -48,6 +49,10 @@ public static class CreatePropertyEndpoint
                 $"/api/properties/{result.Value.PropertyId}",
                 result.Value);
         })
-        .RequireAuthorization("Owner");
+        .RequireAuthorization("Owner").WithTags("Properties")
+        .WithSummary("Creates new property for an owner")
+        .AllowAnonymous()
+        .Produces<CreatePropertyResponse>()
+        .ProducesValidationProblem(); ;
     }
 }

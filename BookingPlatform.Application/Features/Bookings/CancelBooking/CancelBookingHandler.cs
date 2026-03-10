@@ -29,7 +29,7 @@ public class CancelBookingHandler : IRequestHandler<CancelBookingCommand, Result
         if (booking.GuestId != currentUserId.Value) return Errors.NotAuthorized;
 
         if (booking.BookingStatus == BookingStatus.Confirmed)
-            return Errors.Unknown; // or create a dedicated error
+            return Errors.NotAuthorized; // or create a dedicated error
 
         booking.BookingStatus = BookingStatus.Cancelled;
         booking.CancelledOnUtc = System.DateTime.UtcNow;

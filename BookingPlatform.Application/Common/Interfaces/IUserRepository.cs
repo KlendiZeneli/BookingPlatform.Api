@@ -10,4 +10,5 @@ public interface IUserRepository : ICrudRepository<User>
     Task<bool> EmailExistsAsync(string email);
     Task<User?> GetByUserIdAsync(Guid userId, CancellationToken ct);
     Task<User?> GetByEmailAsync(string email, CancellationToken ct);
+    Task<User?> GetByResetTokenAsync(string token, CancellationToken ct);
 }

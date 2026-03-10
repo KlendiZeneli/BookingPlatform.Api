@@ -22,6 +22,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Reflection.Metadata;
 using System.Text;
+using BookingPlatform.API.Extensions;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,6 +67,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddHttpContextAccessor();
 
+// Register email service (SendGrid)
+builder.Services.AddScoped<BookingPlatform.Application.Common.Interfaces.IEmailService, BookingPlatform.Infrastructure.Email.SendGridEmailService>();
+
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
@@ -77,7 +81,7 @@ builder.Services.AddScoped<RegisterHandler>();
 builder.Services.AddScoped<LoginHandler>();
 builder.Services.AddScoped<IReviewRepository, BookingPlatform.Infrastructure.Persistence.Repositories.ReviewRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingPlatform.Infrastructure.Persistence.Repositories.BookingRepository>();
-builder.Services.AddScoped<BookingPlatform.Application.Common.Interfaces.IEmailService, BookingPlatform.Infrastructure.Services.EmailService>();
+// (email service registration above)
 
 var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT"));
 
@@ -115,6 +119,8 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Owner"));
 });
 
+builder.Services.AddEndpoints();
+
 
 var app = builder.Build();
 app.UseCors("AllowFrontend");
@@ -139,14 +145,13 @@ app.MapRegisterEndpoint();
 app.MapLoginEndpoint();
 app.MapVerifyOwnerProfileEndpoint();
 app.MapCreateOwnerProfileEndpoint();
-app.MapCreatePropertyEndpoint();
 app.MapMakeBookingEndpoint();
 app.MapMakeReviewEndpoint();
+app.MapPasswordEndpoints();
 app.MapVerifyBookingEndpoint();
-app.MapGetPropertyEndpoint();
-app.MapDeletePropertyEndpoint();
 app.MapCancelBookingEndpoint();
 app.MapGetPropertyReviewsEndpoint();
+app.MapEndpoints();
 
 app.Run();
 

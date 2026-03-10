@@ -37,12 +37,21 @@ public class ValidationBehavior<TRequest, TResponse>
             var error = new Error("ValidationError", ErrorType.Validation, description, 400);
 
             var resultType = typeof(TResponse);
-            var genericArg = resultType.GetGenericArguments()[0];
-            var failureMethod = typeof(Result<>)
-                .MakeGenericType(genericArg)
-                .GetMethod("op_Implicit", new[] { typeof(Error) })!;
 
-            return (TResponse)failureMethod.Invoke(null, new object[] { error })!;
+            // Case 1: Result<T>
+            if (resultType.IsGenericType)
+            {
+                var genericArg = resultType.GetGenericArguments()[0];
+
+                var failureMethod = typeof(Result<>)
+                    .MakeGenericType(genericArg)
+                    .GetMethod("op_Implicit", new[] { typeof(Error) })!;
+
+                return (TResponse)failureMethod.Invoke(null, new object[] { error })!;
+            }
+
+            // Case 2: Result
+            return (TResponse)(object)Result.Failure(error);
         }
 
         return await next();

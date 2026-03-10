@@ -46,7 +46,19 @@ public class VerifyBookingHandler : IRequestHandler<VerifyBookingCommand, Result
         var guest = booking.Guest;
         if (guest != null)
         {
-            await _emails.SendEmailAsync(guest.Email, "Your booking is confirmed", $"Your booking {booking.Id} was confirmed by the owner.", ct);
+            await _emails.SendTemplateEmailAsync(
+    guest.Email,
+    $"Your booking at {property.Name} is confirmed 🎉",
+    "BookingConfirmed",
+    new Dictionary<string, string>
+    {
+        { "GuestName", guest.FirstName },
+        { "PropertyName", property.Name },
+        { "StartDate", booking.StartDate.ToString("MMMM dd, yyyy") },
+        { "EndDate", booking.EndDate.ToString("MMMM dd, yyyy") },
+        { "GuestCount", booking.GuestCount.ToString() },
+        { "TotalPrice", booking.TotalPrice.ToString() }
+    });
         }
 
         return new VerifyBookingResponse(true);

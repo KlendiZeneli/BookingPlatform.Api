@@ -17,4 +17,8 @@
     <ProjectReference Include="..\BookingPlatform.Domain\BookingPlatform.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Filtering\" />
+  </ItemGroup>
+
 </Project>

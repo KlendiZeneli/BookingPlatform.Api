@@ -59,6 +59,11 @@ public class UserRepository : IUserRepository
              .ThenInclude(ur => ur.Role) 
          .FirstOrDefaultAsync(u => u.Email == email, ct);
     }
+
+    public Task<User?> GetByResetTokenAsync(string token, CancellationToken ct)
+    {
+        return _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == token, ct);
+    }
     public async Task AddAsync(User user, CancellationToken ct)
     {
         await _context.Users.AddAsync(user, ct);

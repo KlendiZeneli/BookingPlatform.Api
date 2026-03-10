@@ -5,5 +5,10 @@ namespace BookingPlatform.Application.Common.Interfaces;
 
 public interface IEmailService
 {
-    Task SendEmailAsync(string to, string subject, string body, CancellationToken ct = default);
+    Task SendEmailAsync(string toEmail, string subject, string htmlContent);
+    Task SendTemplateEmailAsync(
+        string toEmail,
+        string subject,
+        string templateName,
+        Dictionary<string, string> values);
 }

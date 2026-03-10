@@ -19,7 +19,10 @@ public class BookingRepository : IBookingRepository
 
     public Task<Booking?> GetByIdAsync(Guid bookingId, CancellationToken ct)
     {
-        return _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, ct);
+        return _context.Bookings
+            .Include(b => b.Guest)
+            .Include(b => b.Property)
+            .FirstOrDefaultAsync(b => b.Id == bookingId, ct);
     }
 
     public Task<IEnumerable<Booking>> GetAllAsync(CancellationToken ct)
