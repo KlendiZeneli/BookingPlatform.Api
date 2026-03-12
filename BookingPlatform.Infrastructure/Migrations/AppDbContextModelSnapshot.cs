@@ -354,15 +354,19 @@ namespace BookingPlatform.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("bit");
 
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

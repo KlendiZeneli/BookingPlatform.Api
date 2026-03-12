@@ -24,7 +24,8 @@ public record PropertyDto(
     int ReviewCount,
     double AverageRating,
     DateTime? LastBookedOnUtc,
-    IEnumerable<BookingDto> Bookings
+    IEnumerable<BookingDto> Bookings,
+    IEnumerable<PropertyImageDto> Images
 );
 
 public record BookingDto(
@@ -44,3 +45,5 @@ public record BookingDto(
 );
 
 public record AddressDto(string Country, string City, string Street, string PostalCode);
+
+public record PropertyImageDto(Guid Id, string Base64Data, string ContentType, bool IsPrimary);

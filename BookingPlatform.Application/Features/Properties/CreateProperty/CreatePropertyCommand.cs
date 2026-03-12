@@ -17,7 +17,9 @@ public record CreatePropertyCommand(
     decimal PricePerNight,
     TimeOnly CheckInTime,
     TimeOnly CheckOutTime,
-    List<string> Amenities
+    List<string> Amenities,
+    List<CreateImageDto>? Images
 ) : IRequest<Result<CreatePropertyResponse>>;
 
 public record CreateAddressDto(string Country, string City, string Street, string PostalCode);
+public record CreateImageDto(string Base64Data, string ContentType, bool IsPrimary);

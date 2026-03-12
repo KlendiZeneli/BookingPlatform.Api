@@ -35,20 +35,25 @@ public class SearchPropertiesHandler : IRequestHandler<SearchPropertiesCommand, 
             ct: ct
         );
 
-        var responses = items.Select(p => new PropertyResponse(
-            Id: p.Id,
-            Name: p.Name,
-            City: p.Address.City,
-            Country: p.Address.Country,
-            PricePerNight: p.PricePerNight,
-            MaxGuests: p.MaxGuests,
-            Bedrooms: p.Bedrooms,
-            Bathrooms: p.Bathrooms,
-            AverageRating: p.AverageRating,
-            ReviewCount: p.ReviewCount,
-            PrimaryImageUrl: p.Images.FirstOrDefault(i => i.IsPrimary)?.Url,
-            PropertyType: p.PropertyType.ToString()
-        )).ToList();
+        var responses = items.Select(p =>
+        {
+            var primary = p.Images.FirstOrDefault(i => i.IsPrimary);
+            return new PropertyResponse(
+                Id: p.Id,
+                Name: p.Name,
+                City: p.Address.City,
+                Country: p.Address.Country,
+                PricePerNight: p.PricePerNight,
+                MaxGuests: p.MaxGuests,
+                Bedrooms: p.Bedrooms,
+                Bathrooms: p.Bathrooms,
+                AverageRating: p.AverageRating,
+                ReviewCount: p.ReviewCount,
+                PrimaryImageBase64: primary != null ? Convert.ToBase64String(primary.ImageData) : null,
+                PrimaryImageContentType: primary?.ContentType,
+                PropertyType: p.PropertyType.ToString()
+            );
+        }).ToList();
 
         return new PagedResponse<PropertyResponse>(responses, totalCount, command.Page, command.PageSize);
     }

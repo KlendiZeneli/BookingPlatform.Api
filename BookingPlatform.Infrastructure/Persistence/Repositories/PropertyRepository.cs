@@ -25,7 +25,10 @@ public class PropertyRepository : IPropertyRepository
     public async Task<Property?> GetByIdAsync(Guid propertyId, CancellationToken ct)
     {
         return await _context.Properties
+            .Include(p => p.Address)
+            .Include(p => p.Images)
             .Include(p => p.PropertyAmenities)
+                .ThenInclude(pa => pa.Amenity)
             .Include(p => p.Bookings)
             .FirstOrDefaultAsync(p => p.Id == propertyId, ct);
     }
@@ -38,7 +41,8 @@ public class PropertyRepository : IPropertyRepository
 
     public Task UpdateAsync(Property entity, CancellationToken ct)
     {
-        _context.Properties.Update(entity);
+        // Entity was loaded with change tracking active; EF detects scalar property
+        // changes automatically on SaveChanges. No explicit state manipulation needed.
         return Task.CompletedTask;
     }
 
@@ -51,6 +55,24 @@ public class PropertyRepository : IPropertyRepository
     public async Task AddBooking(Booking booking)
     {
         await _context.Bookings.AddAsync(booking);
+    }
+
+    public async Task ReplaceImagesAsync(Guid propertyId, IEnumerable<PropertyImage> images, CancellationToken ct)
+    {
+        var existing = await _context.Set<PropertyImage>()
+            .Where(i => i.PropertyId == propertyId)
+            .ToListAsync(ct);
+        _context.Set<PropertyImage>().RemoveRange(existing);
+        await _context.Set<PropertyImage>().AddRangeAsync(images, ct);
+    }
+
+    public async Task ReplaceAmenitiesAsync(Guid propertyId, IEnumerable<PropertyAmenity> amenities, CancellationToken ct)
+    {
+        var existing = await _context.Set<PropertyAmenity>()
+            .Where(pa => pa.PropertyId == propertyId)
+            .ToListAsync(ct);
+        _context.Set<PropertyAmenity>().RemoveRange(existing);
+        await _context.Set<PropertyAmenity>().AddRangeAsync(amenities, ct);
     }
 
     public async Task SaveChangesAsync(CancellationToken ct)
@@ -151,5 +173,15 @@ public class PropertyRepository : IPropertyRepository
             .ToListAsync(ct);
 
         return (items, totalCount);
+    }
+
+    public Task<List<Property>> GetByOwnerIdAsync(Guid ownerProfileId, CancellationToken ct)
+    {
+        return _context.Properties
+            .Include(p => p.Address)
+            .Include(p => p.Images)
+            .Include(p => p.Bookings)
+            .Where(p => p.OwnerProfileId == ownerProfileId)
+            .ToListAsync(ct);
     }
 }

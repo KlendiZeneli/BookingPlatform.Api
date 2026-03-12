@@ -9,4 +9,5 @@ namespace BookingPlatform.Application.Common.Interfaces;
 public interface IBookingRepository : ICrudRepository<Booking>
 {
     Task<Booking?> GetByIdAsync(Guid bookingId, CancellationToken ct);
+    Task<List<Booking>> GetByGuestIdAsync(Guid guestId, CancellationToken ct);
 }

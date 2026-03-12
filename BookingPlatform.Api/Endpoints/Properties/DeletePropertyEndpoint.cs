@@ -18,10 +18,10 @@ public class DeletePropertyEndpoint : IEndpoint
             CancellationToken ct) =>
         {
             var result = await mediator.Send(new BookingPlatform.Application.Features.Properties.DeleteProperty.DeletePropertyCommand(propertyId), ct);
-            return result.IsSuccess ? Results.Ok() : Results.Json(result.Error.Description, statusCode: result.Error.Code);
-        }).RequireAuthorization("Owner").WithTags("Properties")
-        .WithSummary("Delete property by ID")
-        .AllowAnonymous()
-        .ProducesValidationProblem(); ;
+                return result.IsSuccess ? Results.NoContent() : Results.Json(result.Error.Description, statusCode: result.Error.Code);
+            })
+            .RequireAuthorization("Owner")
+            .WithTags("Properties")
+            .WithSummary("Delete property by ID — owner only");
     }
 }

@@ -14,7 +14,7 @@ public static class CreateOwnerProfileEndpoint
 
     public static void MapCreateOwnerProfileEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/create-owner-profile",
+        app.MapPost("/api/owner-profiles",
             async (CreateRequest req, HttpContext http, IMediator mediator, CancellationToken ct) =>
             {
                 var userIdClaim = http.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

@@ -22,7 +22,18 @@ public class BookingRepository : IBookingRepository
         return _context.Bookings
             .Include(b => b.Guest)
             .Include(b => b.Property)
+                .ThenInclude(p => p.Address)
             .FirstOrDefaultAsync(b => b.Id == bookingId, ct);
+    }
+
+    public Task<List<Booking>> GetByGuestIdAsync(Guid guestId, CancellationToken ct)
+    {
+        return _context.Bookings
+            .Include(b => b.Property)
+                .ThenInclude(p => p.Address)
+            .Where(b => b.GuestId == guestId)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync(ct);
     }
 
     public Task<IEnumerable<Booking>> GetAllAsync(CancellationToken ct)

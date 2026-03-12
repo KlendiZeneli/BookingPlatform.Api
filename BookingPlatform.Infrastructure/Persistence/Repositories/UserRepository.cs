@@ -64,6 +64,14 @@ public class UserRepository : IUserRepository
     {
         return _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == token, ct);
     }
+
+    public Task<User?> GetByIdWithRolesAsync(Guid userId, CancellationToken ct)
+    {
+        return _context.Users
+            .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Id == userId, ct);
+    }
     public async Task AddAsync(User user, CancellationToken ct)
     {
         await _context.Users.AddAsync(user, ct);

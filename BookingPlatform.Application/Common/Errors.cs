@@ -36,6 +36,9 @@ public static class Errors
     public static Error BookingNotFound { get; } =
         new("BookingNotFound", ErrorType.NotFound, "Booking does not exist.", 404);
 
+    public static Error BookingNotConfirmed { get; } =
+        new("BookingNotConfirmed", ErrorType.Validation, "Only confirmed bookings can be marked as completed.", 400);
+
     public static Error InvalidOrExpiredToken { get; } =
         new("InvalidOrExpiredToken", ErrorType.Validation, "The password reset token is invalid or has expired.", 400);
 

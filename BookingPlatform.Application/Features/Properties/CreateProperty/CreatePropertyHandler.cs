@@ -82,6 +82,23 @@ public class CreatePropertyHandler
             });
         }
 
+        foreach (var img in request.Images ?? Enumerable.Empty<CreateImageDto>())
+        {
+            property.Images.Add(new BookingPlatform.Domain.Entities.PropertyImage
+            {
+                Id = Guid.NewGuid(),
+                PropertyId = property.Id,
+                ImageData = Convert.FromBase64String(img.Base64Data),
+                ContentType = img.ContentType,
+                IsPrimary = img.IsPrimary
+            });
+        }
+
+        // ensure at most one primary image
+        var primaryImages = property.Images.Where(i => i.IsPrimary).ToList();
+        if (primaryImages.Count > 1)
+            primaryImages.Skip(1).ToList().ForEach(i => i.IsPrimary = false);
+
         await _properties.AddAsync(property, ct);
         await _properties.SaveChangesAsync(ct);
 

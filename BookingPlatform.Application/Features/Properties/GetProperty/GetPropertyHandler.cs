@@ -65,7 +65,13 @@ public class GetPropertyHandler : IRequestHandler<GetPropertyQuery, Result<GetPr
             prop.ReviewCount,
             prop.AverageRating,
             prop.LastBookedOnUtc,
-            bookings
+            bookings,
+            prop.Images?.Select(i => new PropertyImageDto(
+                i.Id,
+                Convert.ToBase64String(i.ImageData),
+                i.ContentType,
+                i.IsPrimary
+            )) ?? Enumerable.Empty<PropertyImageDto>()
         );
 
         return new GetPropertyResponse(dto);

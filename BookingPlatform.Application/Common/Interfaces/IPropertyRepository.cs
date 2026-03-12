@@ -29,5 +29,8 @@ public interface IPropertyRepository : ICrudRepository<Property>
         CancellationToken ct
     );
     Task<Property?> GetByIdAsync(Guid propertyId, CancellationToken ct);
+    Task<List<Property>> GetByOwnerIdAsync(Guid ownerProfileId, CancellationToken ct);
     Task AddBooking(Booking booking);
+    Task ReplaceImagesAsync(Guid propertyId, IEnumerable<PropertyImage> images, CancellationToken ct);
+    Task ReplaceAmenitiesAsync(Guid propertyId, IEnumerable<PropertyAmenity> amenities, CancellationToken ct);
 }

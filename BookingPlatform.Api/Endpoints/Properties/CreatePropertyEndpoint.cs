@@ -37,7 +37,8 @@ public class CreatePropertyEndpoint : IEndpoint
                 request.PricePerNight,
                 checkIn,
                 checkOut,
-                request.AmenityNames
+                request.AmenityNames,
+                request.Images?.Select(i => new CreateImageDto(i.Base64Data, i.ContentType, i.IsPrimary)).ToList()
             );
 
             var result = await mediator.Send(command, ct);

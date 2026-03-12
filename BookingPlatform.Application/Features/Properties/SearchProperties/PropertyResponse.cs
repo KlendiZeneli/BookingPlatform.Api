@@ -11,7 +11,8 @@ public record PropertyResponse(
     int Bathrooms,
     double AverageRating,
     int ReviewCount,
-    string? PrimaryImageUrl,
+    string? PrimaryImageBase64,
+    string? PrimaryImageContentType,
     string PropertyType
 );
 
