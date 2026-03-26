@@ -1,4 +1,5 @@
 ﻿using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using MediatR;
@@ -14,11 +15,13 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, Result<RegisterR
 {
     private readonly IUserRepository _users;
     private readonly IRoleRepository _roles;
+    private readonly IEventProducer _events;
 
-    public RegisterHandler(IUserRepository users, IRoleRepository roles)
+    public RegisterHandler(IUserRepository users, IRoleRepository roles, IEventProducer events)
     {
                _users = users;
                _roles = roles;
+               _events = events;
     }
     public async Task<Result<RegisterResponse>> Handle(RegisterCommand command, CancellationToken ct)
     {
@@ -50,6 +53,10 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, Result<RegisterR
         }
         await _users.AddAsync(user, ct);
         await _users.SaveChangesAsync(ct);
+
+        await _events.ProduceAsync(KafkaTopics.UserRegistered,
+            new UserRegisteredEvent(user.Id, user.Email, user.FirstName, user.LastName, DateTime.UtcNow), ct);
+
         return new RegisterResponse(user.Id);
     }
 }

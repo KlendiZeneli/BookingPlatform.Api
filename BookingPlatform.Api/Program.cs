@@ -13,6 +13,7 @@ using BookingPlatform.Infrastructure.Persistence;
 using BookingPlatform.Infrastructure.Persistence.Repositories;
 using BookingPlatform.Infrastructure.Repositories;
 using BookingPlatform.Infrastructure.Services;
+using BookingPlatform.Infrastructure.Kafka;
 using DotNetEnv;
 using FluentValidation;
 using MediatR;
@@ -67,9 +68,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddHttpContextAccessor();
 
-// Register email service (SendGrid)
-builder.Services.AddScoped<BookingPlatform.Application.Common.Interfaces.IEmailService, BookingPlatform.Infrastructure.Email.SendGridEmailService>();
-
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
@@ -120,6 +118,10 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddEndpoints();
+
+// Kafka configuration
+builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection("Kafka"));
+builder.Services.AddSingleton<IEventProducer, KafkaProducer>();
 
 
 var app = builder.Build();

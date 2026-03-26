@@ -11,6 +11,7 @@
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.9" />
+    <PackageReference Include="Confluent.Kafka" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>

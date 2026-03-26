@@ -1,4 +1,5 @@
 using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using MediatR;
@@ -14,13 +15,15 @@ public class MakeReviewHandler : IRequestHandler<MakeReviewCommand, Result<MakeR
     private readonly IBookingRepository _bookings;
     private readonly IPropertyRepository _properties;
     private readonly ICurrentUserService _currentUser;
+    private readonly IEventProducer _events;
 
-    public MakeReviewHandler(IReviewRepository reviews, IBookingRepository bookings, IPropertyRepository properties, ICurrentUserService currentUser)
+    public MakeReviewHandler(IReviewRepository reviews, IBookingRepository bookings, IPropertyRepository properties, ICurrentUserService currentUser, IEventProducer events)
     {
         _reviews = reviews;
         _bookings = bookings;
         _properties = properties;
         _currentUser = currentUser;
+        _events = events;
     }
 
     public async Task<Result<MakeReviewResponse>> Handle(MakeReviewCommand request, CancellationToken ct)
@@ -62,6 +65,9 @@ public class MakeReviewHandler : IRequestHandler<MakeReviewCommand, Result<MakeR
         }
 
         await _reviews.SaveChangesAsync(ct);
+
+        await _events.ProduceAsync(KafkaTopics.ReviewCreated,
+            new ReviewCreatedEvent(review.Id, review.BookingId, review.PropertyId, review.GuestId, review.Rating, DateTime.UtcNow), ct);
 
         return new MakeReviewResponse(review.Id);
     }

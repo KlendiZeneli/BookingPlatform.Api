@@ -1,4 +1,5 @@
 ﻿using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using MediatR;
@@ -11,10 +12,12 @@ namespace BookingPlatform.Application.Features.OwnerProfiles.CreateOwnerProfile;
 public class CreateOwnerProfileHandler : IRequestHandler<CreateOwnerProfileCommand, Result<CreateOwnerProfileResponse>>
 {
     private readonly IOwnerProfileRepository _repo;
+    private readonly IEventProducer _events;
 
-    public CreateOwnerProfileHandler(IOwnerProfileRepository repo)
+    public CreateOwnerProfileHandler(IOwnerProfileRepository repo, IEventProducer events)
     {
         _repo = repo;
+        _events = events;
     }
 
     public async Task<Result<CreateOwnerProfileResponse>> Handle(CreateOwnerProfileCommand request, CancellationToken ct)
@@ -35,6 +38,9 @@ public class CreateOwnerProfileHandler : IRequestHandler<CreateOwnerProfileComma
 
         await _repo.AddAsync(profile, ct);
         await _repo.SaveChangesAsync(ct);
+
+        await _events.ProduceAsync(KafkaTopics.OwnerProfileCreated,
+            new OwnerProfileCreatedEvent(profile.UserId, profile.IdentityCardNumber, profile.BusinessName, DateTime.UtcNow), ct);
 
         return new CreateOwnerProfileResponse(profile.UserId);
     }

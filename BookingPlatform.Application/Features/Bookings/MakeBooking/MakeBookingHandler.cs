@@ -1,4 +1,5 @@
 using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using MediatR;
@@ -13,11 +14,13 @@ public class MakeBookingHandler : IRequestHandler<MakeBookingCommand, Result<Mak
 {
     private readonly IPropertyRepository _properties;
     private readonly ICurrentUserService _currentUser;
+    private readonly IEventProducer _events;
 
-    public MakeBookingHandler(IPropertyRepository properties, ICurrentUserService currentUser)
+    public MakeBookingHandler(IPropertyRepository properties, ICurrentUserService currentUser, IEventProducer events)
     {
         _properties = properties;
         _currentUser = currentUser;
+        _events = events;
     }
 
     public async Task<Result<MakeBookingResponse>> Handle(MakeBookingCommand request, CancellationToken ct)
@@ -63,6 +66,9 @@ public class MakeBookingHandler : IRequestHandler<MakeBookingCommand, Result<Mak
         await _properties.AddBooking(booking);
 
         await _properties.SaveChangesAsync(ct);
+
+        await _events.ProduceAsync(KafkaTopics.BookingCreated,
+            new BookingCreatedEvent(booking.Id, booking.PropertyId, booking.GuestId, booking.StartDate, booking.EndDate, booking.GuestCount, booking.TotalPrice, DateTime.UtcNow), ct);
 
         return new MakeBookingResponse(booking.Id);
     }

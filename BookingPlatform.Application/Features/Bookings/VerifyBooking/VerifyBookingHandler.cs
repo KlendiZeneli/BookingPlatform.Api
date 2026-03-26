@@ -1,4 +1,5 @@
 using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Enums;
 using MediatR;
@@ -13,14 +14,14 @@ public class VerifyBookingHandler : IRequestHandler<VerifyBookingCommand, Result
     private readonly IBookingRepository _bookings;
     private readonly IPropertyRepository _properties;
     private readonly ICurrentUserService _currentUser;
-    private readonly IEmailService _emails;
+    private readonly IEventProducer _events;
 
-    public VerifyBookingHandler(IBookingRepository bookings, IPropertyRepository properties, ICurrentUserService currentUser, IEmailService emails)
+    public VerifyBookingHandler(IBookingRepository bookings, IPropertyRepository properties, ICurrentUserService currentUser, IEventProducer events)
     {
         _bookings = bookings;
         _properties = properties;
         _currentUser = currentUser;
-        _emails = emails;
+        _events = events;
     }
 
     public async Task<Result<VerifyBookingResponse>> Handle(VerifyBookingCommand request, CancellationToken ct)
@@ -37,29 +38,20 @@ public class VerifyBookingHandler : IRequestHandler<VerifyBookingCommand, Result
         // ensure current user is the owner of the property
         if (property.OwnerProfileId != currentUserId.Value) return Errors.NotAuthorized;
 
+        var oldStatus = booking.BookingStatus;
         booking.BookingStatus = BookingStatus.Confirmed;
         booking.ConfirmedOnUtc = DateTime.UtcNow;
 
         await _bookings.SaveChangesAsync(ct);
 
-        // send a simple notification email to guest (placeholder)
-        var guest = booking.Guest;
-        if (guest != null)
-        {
-            await _emails.SendTemplateEmailAsync(
-    guest.Email,
-    $"Your booking at {property.Name} is confirmed 🎉",
-    "BookingConfirmed",
-    new Dictionary<string, string>
-    {
-        { "GuestName", guest.FirstName },
-        { "PropertyName", property.Name },
-        { "StartDate", booking.StartDate.ToString("MMMM dd, yyyy") },
-        { "EndDate", booking.EndDate.ToString("MMMM dd, yyyy") },
-        { "GuestCount", booking.GuestCount.ToString() },
-        { "TotalPrice", booking.TotalPrice.ToString() }
-    });
-        }
+        await _events.ProduceAsync(KafkaTopics.BookingStatusChanged,
+            new BookingStatusChangedEvent(
+                booking.Id,
+                booking.PropertyId,
+                booking.GuestId,
+                oldStatus.ToString(),
+                booking.BookingStatus.ToString(),
+                DateTime.UtcNow), ct);
 
         return new VerifyBookingResponse(true);
     }

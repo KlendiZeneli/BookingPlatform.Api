@@ -1,4 +1,5 @@
 using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using BookingPlatform.Domain.Enums;
@@ -15,6 +16,7 @@ public class UpdatePropertyHandler : IRequestHandler<UpdatePropertyCommand, Resu
 {
     private readonly IPropertyRepository _properties;
     private readonly ICurrentUserService _currentUser;
+    private readonly IEventProducer _events;
 
     private static readonly IReadOnlyDictionary<AmenitiesEnum, Guid> AmenityGuidMap = new Dictionary<AmenitiesEnum, Guid>
     {
@@ -31,10 +33,11 @@ public class UpdatePropertyHandler : IRequestHandler<UpdatePropertyCommand, Resu
         { AmenitiesEnum.PetsAllowed,     new Guid("00000000-0000-0000-0000-00000000000b") }
     };
 
-    public UpdatePropertyHandler(IPropertyRepository properties, ICurrentUserService currentUser)
+    public UpdatePropertyHandler(IPropertyRepository properties, ICurrentUserService currentUser, IEventProducer events)
     {
         _properties = properties;
         _currentUser = currentUser;
+        _events = events;
     }
 
     public async Task<Result<bool>> Handle(UpdatePropertyCommand request, CancellationToken ct)
@@ -93,6 +96,9 @@ public class UpdatePropertyHandler : IRequestHandler<UpdatePropertyCommand, Resu
         }
 
         await _properties.SaveChangesAsync(ct);
+
+        await _events.ProduceAsync(KafkaTopics.PropertyUpdated,
+            new PropertyUpdatedEvent(property.Id, property.OwnerProfileId, property.Name, property.IsActive, DateTime.UtcNow), ct);
 
         return true;
     }

@@ -1,4 +1,5 @@
 using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using BookingPlatform.Domain.Enums;
@@ -14,12 +15,14 @@ public class VerifyOwnerProfileHandler : IRequestHandler<VerifyOwnerProfileComma
     private readonly IOwnerProfileRepository _repo;
     private readonly IUserRepository _users;
     private readonly IRoleRepository _roles;
+    private readonly IEventProducer _events;
 
-    public VerifyOwnerProfileHandler(IOwnerProfileRepository repo, IUserRepository users,IRoleRepository roles)
+    public VerifyOwnerProfileHandler(IOwnerProfileRepository repo, IUserRepository users,IRoleRepository roles, IEventProducer events)
     {
         _repo = repo;
         _roles = roles;
         _users = users;
+        _events = events;
     }
 
     public async Task<Result> Handle(VerifyOwnerProfileCommand request, CancellationToken ct)
@@ -47,6 +50,9 @@ public class VerifyOwnerProfileHandler : IRequestHandler<VerifyOwnerProfileComma
 
         await _users.SaveChangesAsync(ct);
         await _repo.SaveChangesAsync(ct);
+
+        await _events.ProduceAsync(KafkaTopics.OwnerProfileVerified,
+            new OwnerProfileVerifiedEvent(request.UserId, request.Approve, request.Notes, profile.VerifiedAt, DateTime.UtcNow), ct);
 
         return Result.Success();
     }

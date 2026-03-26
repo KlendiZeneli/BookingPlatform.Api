@@ -1,4 +1,5 @@
 ﻿using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using BookingPlatform.Domain.Entities;
 using BookingPlatform.Domain.Enums;
@@ -10,6 +11,7 @@ public class CreatePropertyHandler
     : IRequestHandler<CreatePropertyCommand, Result<CreatePropertyResponse>>
 {
     private readonly IPropertyRepository _properties;
+    private readonly IEventProducer _events;
 
     private static readonly IReadOnlyDictionary<AmenitiesEnum, Guid> AmenityGuidMap = new Dictionary<AmenitiesEnum, Guid>
     {
@@ -26,9 +28,10 @@ public class CreatePropertyHandler
         { AmenitiesEnum.PetsAllowed, new Guid("00000000-0000-0000-0000-00000000000b") }
     };
 
-    public CreatePropertyHandler(IPropertyRepository properties)
+    public CreatePropertyHandler(IPropertyRepository properties, IEventProducer events)
     {
         _properties = properties;
+        _events = events;
     }
 
     public async Task<Result<CreatePropertyResponse>> Handle(
@@ -101,6 +104,9 @@ public class CreatePropertyHandler
 
         await _properties.AddAsync(property, ct);
         await _properties.SaveChangesAsync(ct);
+
+        await _events.ProduceAsync(KafkaTopics.PropertyCreated,
+            new PropertyCreatedEvent(property.Id, property.OwnerProfileId, property.Name, property.PricePerNight, DateTime.UtcNow), ct);
 
         return new CreatePropertyResponse(property.Id);
     }

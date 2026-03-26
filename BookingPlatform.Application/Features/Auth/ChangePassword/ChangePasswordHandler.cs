@@ -1,4 +1,5 @@
 using BookingPlatform.Application.Common;
+using BookingPlatform.Application.Common.Events;
 using BookingPlatform.Application.Common.Interfaces;
 using MediatR;
 using System.Text.RegularExpressions;
@@ -9,11 +10,13 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Resu
 {
     private readonly IUserRepository _users;
     private readonly ICurrentUserService _currentUser;
+    private readonly IEventProducer _events;
 
-    public ChangePasswordHandler(IUserRepository users, ICurrentUserService currentUser)
+    public ChangePasswordHandler(IUserRepository users, ICurrentUserService currentUser, IEventProducer events)
     {
         _users = users;
         _currentUser = currentUser;
+        _events = events;
     }
 
     public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken ct)
@@ -36,6 +39,9 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Resu
 
         await _users.UpdateAsync(user, ct);
         await _users.SaveChangesAsync(ct);
+
+        await _events.ProduceAsync(KafkaTopics.PasswordChanged,
+            new PasswordChangedEvent(user.Id, user.Email, DateTime.UtcNow), ct);
 
         return Result.Success();
     }
