@@ -1,7 +1,9 @@
 using Application.Behaviors;
 using BookingPlatform.Api.Endpoints.Properties;
 using BookingPlatform.Api.Endpoints.Reviews;
+using BookingPlatform.Api.Hubs;
 using BookingPlatform.Api.Middleware;
+using BookingPlatform.Api.Services;
 using BookingPlatform.API.Endpoints.Auth;
 using BookingPlatform.API.Endpoints.OwnerProfiles;
 using BookingPlatform.Application.Common.Interfaces;
@@ -21,7 +23,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
-using System.Reflection.Metadata;
+using System.Security.Claims;
 using System.Text;
 using BookingPlatform.API.Extensions;
 
@@ -54,6 +56,8 @@ builder.Services.AddCors(options =>
                   .AllowCredentials();
         });
 });
+builder.Services.AddSignalR();
+
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<HandlerMarker>());
 builder.Services.AddValidatorsFromAssemblyContaining<HandlerMarker>();
 
@@ -101,7 +105,25 @@ builder.Services
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
 
-            IssuerSigningKey = new SymmetricSecurityKey(key)
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+
+            // Use the NameIdentifier claim as the user identifier for SignalR groups
+            NameClaimType = ClaimTypes.NameIdentifier
+        };
+
+        // SignalR sends the JWT via query string for WebSocket connections
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -122,11 +144,14 @@ builder.Services.AddEndpoints();
 // Kafka configuration
 builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection("Kafka"));
 builder.Services.AddSingleton<IEventProducer, KafkaProducer>();
+builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+builder.Services.AddHostedService<KafkaConsumerHostedService>();
 
 
 var app = builder.Build();
 app.UseCors("AllowFrontend");
 app.UseGlobalExceptionHandler();
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -154,6 +179,8 @@ app.MapVerifyBookingEndpoint();
 app.MapCancelBookingEndpoint();
 app.MapGetPropertyReviewsEndpoint();
 app.MapEndpoints();
+
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();
 

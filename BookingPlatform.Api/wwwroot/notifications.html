@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking Platform – Real-Time Notifications</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #2d3748;
+    }
+
+    .connect-panel {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 1.5rem;
+    }
+
+    .connect-panel label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.35rem;
+    }
+
+    .connect-panel input {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    .connect-panel input:focus { border-color: #4299e1; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary { background: #4299e1; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #3182ce; }
+
+    .btn-danger { background: #fc8181; color: #fff; margin-left: 0.5rem; }
+    .btn-danger:hover:not(:disabled) { background: #f56565; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      margin-top: 0.75rem;
+    }
+
+    .status-badge.connected    { background: #c6f6d5; color: #276749; }
+    .status-badge.disconnected { background: #fed7d7; color: #9b2c2c; }
+    .status-badge.connecting   { background: #fefcbf; color: #744210; }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-badge.connected    .status-dot { background: #38a169; }
+    .status-badge.disconnected .status-dot { background: #e53e3e; }
+    .status-badge.connecting   .status-dot { background: #d69e2e; }
+
+    /* Notifications list */
+    .notifications-header {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .notifications-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .clear-btn {
+      font-size: 0.78rem;
+      background: none;
+      border: 1px solid #cbd5e0;
+      color: #718096;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .clear-btn:hover { background: #edf2f7; }
+
+    #notification-list {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .notification-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+      padding: 1rem 1.25rem;
+      border-left: 4px solid #4299e1;
+      animation: slideIn 0.25s ease;
+      position: relative;
+    }
+
+    .notification-card.booking-status-changed { border-left-color: #48bb78; }
+    .notification-card.booking-created        { border-left-color: #4299e1; }
+    .notification-card.owner-profile-verified { border-left-color: #ed8936; }
+    .notification-card.review-created         { border-left-color: #9f7aea; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    .notification-card .notif-type {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #718096;
+      margin-bottom: 0.35rem;
+    }
+
+    .notification-card .notif-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+
+    .notification-card .notif-body {
+      font-size: 0.85rem;
+      color: #4a5568;
+      line-height: 1.5;
+    }
+
+    .notification-card .notif-time {
+      font-size: 0.75rem;
+      color: #a0aec0;
+      margin-top: 0.5rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #a0aec0;
+      font-size: 0.9rem;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <h1>🔔 Real-Time Notifications</h1>
+
+  <div class="connect-panel">
+    <label for="token-input">JWT Access Token</label>
+    <input id="token-input" type="text" placeholder="Paste your JWT here…" />
+    <div>
+      <button class="btn btn-primary" id="connect-btn" onclick="connect()">Connect</button>
+      <button class="btn btn-danger" id="disconnect-btn" onclick="disconnect()" disabled>Disconnect</button>
+    </div>
+    <div id="status-badge" class="status-badge disconnected">
+      <span class="status-dot"></span>
+      <span id="status-text">Disconnected</span>
+    </div>
+  </div>
+
+  <div class="notifications-header">
+    <h2>Notifications <span id="notif-count" style="color:#a0aec0;font-weight:400"></span></h2>
+    <button class="clear-btn" onclick="clearNotifications()">Clear all</button>
+  </div>
+
+  <div id="notification-list">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">📭</div>
+      No notifications yet. Connect and wait for events.
+    </div>
+  </div>
+
+  <script>
+    let connection = null;
+    let notifCount = 0;
+
+    const ENDPOINT = '/hubs/notifications';
+
+    const TYPE_META = {
+      BookingCreated:        { label: 'New Booking',            cssClass: 'booking-created',        title: e => `Booking created for property ${e.propertyId}`,                  body: e => `Check-in: ${fmt(e.startDate)} → Check-out: ${fmt(e.endDate)}<br>Total: $${e.totalPrice}` },
+      BookingStatusChanged:  { label: 'Booking Status Update',  cssClass: 'booking-status-changed', title: e => `Booking ${e.bookingId} status changed`,                          body: e => `${e.oldStatus} → ${e.newStatus}` },
+      OwnerProfileVerified:  { label: 'Profile Verification',   cssClass: 'owner-profile-verified', title: e => e.approved ? '✅ Profile approved!' : '❌ Profile not approved', body: e => e.notes ? `Notes: ${e.notes}` : '' },
+      ReviewCreated:         { label: 'New Review',             cssClass: 'review-created',         title: e => `New review posted`,                                             body: e => `Rating: ${'⭐'.repeat(e.rating)} (${e.rating}/5)` },
+    };
+
+    function fmt(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function setStatus(state) {
+      const badge = document.getElementById('status-badge');
+      const text  = document.getElementById('status-text');
+      badge.className = `status-badge ${state}`;
+      text.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+    }
+
+    async function connect() {
+      const token = document.getElementById('token-input').value.trim();
+      if (!token) { alert('Please paste a JWT token first.'); return; }
+
+      setStatus('connecting');
+      document.getElementById('connect-btn').disabled = true;
+
+      connection = new signalR.HubConnectionBuilder()
+        .withUrl(`${ENDPOINT}?access_token=${encodeURIComponent(token)}`)
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+      // Register handlers for each notification type
+      Object.keys(TYPE_META).forEach(method => {
+        connection.on(method, payload => addNotification(method, payload));
+      });
+
+      connection.onreconnecting(() => setStatus('connecting'));
+      connection.onreconnected(() => setStatus('connected'));
+      connection.onclose(() => {
+        setStatus('disconnected');
+        document.getElementById('connect-btn').disabled    = false;
+        document.getElementById('disconnect-btn').disabled = true;
+      });
+
+      try {
+        await connection.start();
+        setStatus('connected');
+        document.getElementById('disconnect-btn').disabled = false;
+      } catch (err) {
+        console.error(err);
+        setStatus('disconnected');
+        document.getElementById('connect-btn').disabled = false;
+        alert(`Connection failed: ${err.message || err}`);
+      }
+    }
+
+    async function disconnect() {
+      if (connection) {
+        await connection.stop();
+        connection = null;
+      }
+    }
+
+    function addNotification(type, payload) {
+      document.getElementById('empty-state')?.remove();
+      notifCount++;
+      document.getElementById('notif-count').textContent = `(${notifCount})`;
+
+      const meta  = TYPE_META[type] || { label: type, cssClass: '', title: () => type, body: () => JSON.stringify(payload) };
+      const card  = document.createElement('div');
+      card.className = `notification-card ${meta.cssClass}`;
+      card.innerHTML = `
+        <div class="notif-type">${meta.label}</div>
+        <div class="notif-title">${meta.title(payload)}</div>
+        ${meta.body(payload) ? `<div class="notif-body">${meta.body(payload)}</div>` : ''}
+        <div class="notif-time">${new Date().toLocaleTimeString()}</div>
+      `;
+
+      const list = document.getElementById('notification-list');
+      list.prepend(card);
+    }
+
+    function clearNotifications() {
+      notifCount = 0;
+      document.getElementById('notif-count').textContent = '';
+      const list = document.getElementById('notification-list');
+      list.innerHTML = `
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">📭</div>
+          No notifications yet. Connect and wait for events.
+        </div>`;
+    }
+  </script>
+</body>
+</html>
