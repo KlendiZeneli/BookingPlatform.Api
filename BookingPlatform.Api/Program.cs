@@ -103,6 +103,22 @@ builder.Services
 
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/notifications"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -119,6 +135,10 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddEndpoints();
 
+// SignalR
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<INotificationService, BookingPlatform.Api.Services.SignalRNotificationService>();
+
 // Kafka configuration
 builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection("Kafka"));
 builder.Services.AddSingleton<IEventProducer, KafkaProducer>();
@@ -131,6 +151,9 @@ app.UseGlobalExceptionHandler();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// SignalR
+app.MapHub<BookingPlatform.Api.Hubs.NotificationHub>("/hubs/notifications");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -152,7 +175,6 @@ app.MapMakeReviewEndpoint();
 app.MapPasswordEndpoints();
 app.MapVerifyBookingEndpoint();
 app.MapCancelBookingEndpoint();
-app.MapGetPropertyReviewsEndpoint();
 app.MapEndpoints();
 
 app.Run();

@@ -258,6 +258,28 @@ Generated_Code/
 # to a newer Visual Studio version. Backup files are not needed,
 # because we have git ;-)
 _UpgradeReport_Files/
+
+# Angular / Node
+**/node_modules/
+**/.angular/
+**/dist/
+**/out-tsc/
+**/coverage/
+
+# Angular / Node logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Angular environment-local files
+.env.local
+.env.*.local
+
+# Optional package manager artifacts
+.pnp/
+.pnp.js
 Backup*/
 UpgradeLog*.XML
 UpgradeLog*.htm

@@ -7,9 +7,9 @@ using System.Threading;
 
 namespace BookingPlatform.Api.Endpoints.Reviews;
 
-public static class GetPropertyReviewsEndpoint
+public class GetPropertyReviewsEndpoint : IEndpoint
 {
-    public static void MapGetPropertyReviewsEndpoint(this IEndpointRouteBuilder app)
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGet("/api/properties/{propertyId:guid}/reviews", async (
             Guid propertyId,
